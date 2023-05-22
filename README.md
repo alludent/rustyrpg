@@ -1,3 +1,3 @@
 # rustyrpg
-explore, gamble, shop
+explore, gamble, shop.
 h - help
