@@ -3,6 +3,7 @@ extern crate core;
 use core::fmt;
 use std::io;
 use std::time::{Duration, SystemTime};
+// use std::thread;
 
 
 // todo, remove current save
@@ -273,13 +274,13 @@ fn print_high_market_help() {
 
 // more tokens = higher market
 fn choose_market(saves: &mut Vec<Save>, curr_save_idx: usize) {
-    if saves[curr_save_idx].balance < 25 {
+    if saves[curr_save_idx].balance < 1200 {
         print_low_market_help(); // usage: [OP] [amount] [product]
     }
-    else if saves[curr_save_idx].balance > 1200 {
+    else if saves[curr_save_idx].balance < 620000 {
         print_medium_market_help();
     }
-    else if saves[curr_save_idx].balance > 620000 {
+    else {
         print_high_market_help();
     }
 }
@@ -329,13 +330,6 @@ fn welcome() -> String {
             break;
         }
     }
-
-    println!("\n=-=-==-=-==-==-=-==--==-==-==-=-=-=-=-==-=-=-==-");
-    println!("");
-    println!("");
-    println!(""); 
-    println!("");
-    println!("==-=-=-===-==-==-=-=-==-=-=-=-=-=-==-=-==--====-");
 
     println!("\n=-=-==-=-==-==-=-==--==-==-==-=-=-=-=-==-=-=-==-");
     println!("Welcome {input}. Here in the Walls of Descent,");
@@ -1929,7 +1923,10 @@ fn update_balance(curr_save_idx: usize, saves: &mut Vec<Save>) {
     
         let mut plant_multiplier: isize = 1;
         let mut animal_multiplier: isize = 1;
-    
+
+        // save.balance += 1;
+
+        
         if !save.items.is_empty() {
             for item in save.items.iter() {
                 if item.tag == "starter_fertilizer" {
@@ -1952,18 +1949,28 @@ fn update_balance(curr_save_idx: usize, saves: &mut Vec<Save>) {
                 }
             }
         }
-    
+        
         if !save.plants.is_empty() {
             for plant in save.plants.iter() {
                 let cost: isize = Product::cost(&plant.tag) as isize;
-                save.balance += cost * plant_multiplier / 25;
+                if save.balance < save.balance + cost * plant_multiplier / 25 {
+                    save.balance = std::isize::MAX;
+                }
+                else {
+                    save.balance += cost * plant_multiplier / 25;
+                }
             }
         }
     
         if !save.animals.is_empty() {
             for animal in save.animals.iter() {
                 let cost = Product::cost(&animal.tag) as isize;
-                save.balance += cost * animal_multiplier / 25;
+                if save.balance < save.balance + cost * animal_multiplier / 25 {
+                    save.balance = std::isize::MAX;
+                }
+                else {
+                    save.balance += cost * animal_multiplier / 25;
+                }
             }
         }
     }
@@ -2130,7 +2137,11 @@ impl fmt::Display for Save {
         Ok(())
     }
 }
-
+impl Save {
+    fn godmode(&mut self) {
+        self.balance += 9999999999;
+    }
+}
 
 fn main() {
     println!("You have entered the /*&@# \\% $*&@-(|.");
@@ -2139,11 +2150,18 @@ fn main() {
     let player_name: String = welcome(); // welcome msg
     let mut saves: Vec<Save> = Vec::new(); // hold all saves
     let mut curr_save_idx: usize = std::usize::MAX; // hold current save idx
+
     
+
+    // thread::spawn(move || {
+    //     loop {
+    //         thread::sleep(Duration::from_secs(3));
+    //     }
+    // });
     
     // main game loop   
     loop {
-        // check if valid is >= 0
+        // check if bal > -1
         update_balance(curr_save_idx, &mut saves);
         check_valid_balance(&mut curr_save_idx, &mut saves); 
 
@@ -2328,6 +2346,12 @@ fn main() {
                     println!("\nInvalid arguments for \"exit\".");
                 }
             }, // end of exit
+
+            "x2g97" => {
+                if check_valid_save(curr_save_idx, &saves) {
+                    saves[curr_save_idx].godmode();
+                }
+            },
 
             _ => {
                 println!("\nInvalid command [{}]", command[0]);
