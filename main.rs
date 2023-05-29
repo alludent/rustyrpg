@@ -384,7 +384,7 @@ fn check_valid_save(curr_save_idx: usize, saves: &Vec<Save>) -> bool {
 // check at beginning of game loop if balance > 0
 fn check_valid_balance(i: &mut usize, saves: &mut Vec<Save>) {
     if let Some(save) = saves.get_mut(*i) {  // get &mut save 
-        if save.balance < 0 {
+        if save.balance < 0 || (save.balance == 0 && save.items.is_empty() && save.plants.is_empty() && save.animals.is_empty()){
             println!("\n-==-===-=-==-== YOU LOST ==-=-=-===--=-=");
             println!("Create a new game or load an existing one.");
             println!("=-=-===-==-=-===-=-===-=-===-=-==-==-==-");
